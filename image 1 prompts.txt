@@ -1,0 +1,11 @@
+Prompt Set (for the cat in the forest):
+
+(✅ REAL PROMPT)
+
+“A high-resolution close-up photograph of a fluffy grey long-haired cat sitting on a mossy forest floor, warm natural daylight, soft depth of field, detailed fur texture, calm expression, cinematic forest background, ultra-realistic photography.”
+
+(❌ Distractor Prompt 1)
+2. “A fluffy grey cat sitting indoors near a window, sunlight shining on its fur, shallow depth of field, cozy warm tone, soft background blur.”
+
+(❌ Distractor Prompt 2)
+3. “A short-haired orange tabby cat sitting in a flower garden, bright morning light, macro photography style, colorful bokeh background.”

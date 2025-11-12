@@ -1,0 +1,11 @@
+Prompt Set (Digital Painting Warrior)
+
+(✅ REAL PROMPT)
+
+“A semi-realistic digital painting of a fierce female warrior with flowing auburn hair, wearing weathered steel armor and a dark green cloak, holding a sword, standing against misty mountains, dramatic lighting, detailed brushwork, ArtStation fantasy style.”
+
+(❌ Distractor Prompt 1 — only slight changes)
+2. “A semi-realistic digital painting of a determined female warrior with windswept chestnut hair, wearing worn metal armor and a forest-green cloak, holding a longsword, standing before foggy mountains, cinematic lighting, ArtStation fantasy artwork.”
+
+(❌ Distractor Prompt 2 — subtle wording variation)
+3. “A semi-realistic digital painting of a strong female fighter with fiery red hair, dressed in aged steel armor and a dark hooded cloak, gripping a blade, standing in a cloudy highland landscape, moody lighting, detailed fantasy character concept art.”

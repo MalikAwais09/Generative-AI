@@ -1,0 +1,18 @@
+🖼️ Image: Minimal Flat Illustration — Blue Mug with Tea Bag
+(✅ Real Prompt)
+
+Prompt 1:
+
+“A simple flat digital illustration of a blue ceramic mug with a tea bag hanging from the rim, gentle steam rising above, clean vector lines, soft beige background, modern minimal design.”
+
+(❌ Distractor Prompt 1 — Slight Color + Object Change)
+
+Prompt 2:
+
+“A flat vector illustration of a light blue cup with a tea bag string hanging down the side, subtle steam above, smooth lines, pastel cream background, modern minimalist style.”
+
+(❌ Distractor Prompt 2 — Layout + Texture Change)
+
+Prompt 3:
+
+“A minimal flat illustration of a dark blue coffee mug with a tea tag resting on the table beside it, faint steam rising, clean outlines, warm beige background, friendly modern aesthetic.”

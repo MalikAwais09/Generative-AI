@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative AI Challenge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gradient-start: #6a00ff; /* Purple */
+            --gradient-end: #00bcd4;   /* Cyan */
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --card-hover-bg: rgba(255, 255, 255, 0.2);
+            --text-color: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --border-radius: 15px;
+            --transition-speed: 0.3s;
+        }
+        .center{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            color: var(--text-color);
+            overflow: hidden;
+            transition: background var(--transition-speed) ease-in-out;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            text-align: center;
+            animation: fadeIn var(--transition-speed) ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 5px var(--shadow-color);
+        }
+
+        .progress-indicator {
+            font-size: 1em;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .image-container {
+            margin-bottom: 40px;
+            perspective: 1000px; /* For 3D tilt effect */
+        }
+
+        .ai-image {
+            width: 100%;
+            max-width: 500px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 40px var(--shadow-color);
+            object-fit: cover;
+            transition: transform 0.5s ease-in-out;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .ai-image:hover {
+            transform: scale(1.02); /* Slight zoom on hover */
+        }
+
+        .prompt-options {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .prompt-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            cursor: pointer;
+            transition: background var(--transition-speed) ease-in-out, transform var(--transition-speed) ease-in-out, box-shadow var(--transition-speed) ease-in-out;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-color);
+            border: none;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .prompt-card:hover {
+            background: var(--card-hover-bg);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .prompt-card:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            .prompt-card {
+                font-size: 1em;
+                padding: 15px;
+            }
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+            <h1>Generative AI Challenge – Round 1</h1>
+            <p class="center progress-indicator" id="progressIndicator">Image 1 of 5</p>
+        </header>
+    <div class="container" id="quizContainer">
+        
+
+        <div class="image-container">
+            <img src="https://via.placeholder.com/500x300?text=AI+Generated+Image" alt="AI Generated Image" class="ai-image" id="aiImage">
+        </div>
+
+        <div class="prompt-options">
+            <button class="prompt-card" data-prompt-value="1">Prompt Option 1: A futuristic city at sunset</button>
+            <button class="prompt-card" data-prompt-value="2">Prompt Option 2: An astronaut surfing on cosmic waves</button>
+            <button class="prompt-card" data-prompt-value="3">Prompt Option 3: Bioluminescent forest creatures</button>
+        </div>
+    </div>
+
+    <script>
+        let currentImageNum = 1;
+        const totalImages = 5;
+        const recordedSelections = []; // To store { imageNum, promptValue }
+
+        const quizContainer = document.getElementById('quizContainer');
+        const aiImage = document.getElementById('aiImage');
+        const progressIndicator = document.getElementById('progressIndicator');
+        const promptCards = document.querySelectorAll('.prompt-card');
+
+        // Example image URLs (replace with your actual AI-generated images)
+        const imageUrls = [
+            "https://via.placeholder.com/500x300?text=AI+Image+1",
+            "https://via.placeholder.com/500x300?text=AI+Image+2",
+            "https://via.placeholder.com/500x300?text=AI+Image+3",
+            "https://via.placeholder.com/500x300?text=AI+Image+4",
+            "https://via.placeholder.com/500x300?text=AI+Image+5"
+        ];
+
+        // Example prompt texts for each image
+        const promptTexts = [
+            ["A majestic space whale gliding through nebulae.", "A robot chef preparing gourmet dishes.", "An ancient wizard casting a spell in a glowing forest."],
+            ["Underwater city powered by geothermal vents.", "Desert landscape with colossal sand sculptures.", "Floating islands connected by luminous bridges."],
+            ["Cyberpunk alleyway with neon-lit ramen shops.", "Serene Japanese garden with robotic koi fish.", "Viking longship sailing through an aurora borealis."],
+            ["A whimsical treehouse village in a giant mushroom forest.", "Steampunk airship fleet navigating a cloudy sky.", "Magical library where books float and glow."],
+            ["Post-apocalyptic cityscape reclaimed by nature.", "High-tech laboratory with glowing holographic displays.", "Mythical creature guarding a hidden treasure in a cave."]
+        ];
+
+        function updateQuizContent() {
+            if (currentImageNum > totalImages) {
+                endQuiz();
+                return;
+            }
+
+            // Fade out current content
+            quizContainer.style.opacity = '0';
+            quizContainer.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                aiImage.src = imageUrls[currentImageNum - 1];
+                progressIndicator.textContent = `Image ${currentImageNum} of ${totalImages}`;
+
+                promptCards.forEach((card, index) => {
+                    card.textContent = promptTexts[currentImageNum - 1][index];
+                });
+
+                // Fade in new content
+                quizContainer.style.opacity = '1';
+                quizContainer.style.transform = 'translateY(0)';
+            }, parseInt(getComputedStyle(quizContainer).transitionDuration) * 1000 || 300); // Wait for fade out transition
+        }
+
+        function endQuiz() {
+            quizContainer.innerHTML = `
+                <header>
+                    <h1>Challenge Complete!</h1>
+                    <p class="progress-indicator">Thank you for participating!</p>
+                </header>
+                <p>Your selections have been recorded:</p>
+                <pre id="results"></pre>
+            `;
+            document.getElementById('results').textContent = JSON.stringify(recordedSelections, null, 2);
+            // In a real application, you'd send `recordedSelections` to a server here.
+        }
+
+        promptCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const promptValue = this.getAttribute('data-prompt-value');
+                console.log(`Image ${currentImageNum} selected prompt: ${promptValue}`);
+                recordedSelections.push({ imageNum: currentImageNum, promptValue: parseInt(promptValue) });
+
+                currentImageNum++;
+                updateQuizContent();
+            });
+        });
+
+        // Initialize the first question
+        document.addEventListener('DOMContentLoaded', updateQuizContent);
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+Prompt Set
+
+(✅ REAL PROMPT)
+
+“A 2D anime-style illustration of a young girl archer in a green cloak, holding a wooden bow with a quiver of arrows on her back, standing in a soft forest background, bright expressive eyes, clean line art, warm light, studio Ghibli inspired style.”
+
+(❌ Distractor Prompt 1)
+2. “A 2D anime-style illustration of a young girl mage wearing a blue cloak, holding a magic staff, glowing particles around her, standing in a mystical forest, bright expressive eyes, fantasy adventure theme.”
+
+(❌ Distractor Prompt 2)
+3. “A 2D anime-style illustration of a cheerful girl in a school uniform, standing in a city park, sunlight filtering through trees, bright expressive eyes, slice-of-life aesthetic.”
