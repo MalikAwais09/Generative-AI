@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generative AI Challenge - Round 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { 
+    font-family: 'Poppins', sans-serif; 
+    background: linear-gradient(135deg, #0f346d, #3d4073, #c56696); 
+    color: white; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+    margin: 0; 
+    flex-direction: column; 
+    text-align: center;
+  }
+  .container { 
+    max-width: 500px; 
+    background: rgba(255,255,255,0.08); 
+    border-radius: 20px; 
+    padding: 30px 20px; 
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3); 
+    backdrop-filter: blur(12px); 
+    margin: 20px;
+  }
+  h1 { 
+    font-size: 1.6rem; 
+    margin-bottom: 6px; 
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { 
+    font-size: 0.9rem; 
+    opacity: 0.8; 
+    margin-bottom: 20px;
+  }
+  .image-box { 
+    width: 100%; 
+    height: 300px; 
+    border-radius: 15px; 
+    overflow: hidden; 
+    margin-bottom: 25px; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    background-color: rgba(0,0,0,0.3);
+  }
+  .image-box img { 
+    width: 100%; 
+    height: 100%; 
+    border-radius: 15px; 
+    object-fit: contain; 
+    box-shadow: 0 0 25px 8px rgba(0,0,0,0.6);
+  }
+  .options { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px;
+  }
+  .option-btn { 
+    background: rgba(255,255,255,0.12); 
+    border: 2px solid transparent; 
+    border-radius: 12px; 
+    color: white; 
+    font-size: 0.95rem; 
+    padding: 12px; 
+    cursor: pointer; 
+    transition: 0.3s ease;
+  }
+  .option-btn:hover { 
+    background: rgba(255,255,255,0.25); 
+    transform: scale(1.03);
+  }
+  .option-btn.selected { 
+    background: white; 
+    color: #6d28d9; 
+    font-weight: 600; 
+    box-shadow: 0 0 15px rgba(255,255,255,0.3);
+  }
+  .start-screen input { 
+    width: 80%; 
+    padding: 10px; 
+    margin: 10px; 
+    border-radius: 10px; 
+    border: none; 
+    text-align: center;
+  }
+  .start-btn { 
+    padding: 10px 20px; 
+    background: white; 
+    color: #6d28d9; 
+    border: none; 
+    border-radius: 10px; 
+    font-weight: 600; 
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  .start-btn:hover {
+    transform: scale(1.05);
+  }
+  .loading {
+    display: none;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    color: #4facfe;
+  }
+  .success-message {
+    display: none;
+    background: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    border-left: 4px solid #4facfe;
+  }
+  .warning-message {
+    background: rgba(255,193,7,0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    border-left: 4px solid #ffc107;
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="container start-screen" id="start-screen">
+  <h1>Generative AI Challenge - Round 1</h1>
+  <p>Please enter your details to begin:</p>
+  <input type="text" id="name" placeholder="Enter your Name" required>
+  <input type="text" id="arid" placeholder="Enter your ARID Number" required>
+  <button class="start-btn" id="start-btn">Start Round</button>
+  <div class="loading" id="loading">Loading quiz data...</div>
+  <div class="warning-message" id="security-warning">
+    Note: Responses will be stored locally in your browser due to security settings.
+  </div>
+</div>
+
+<div class="container" id="quiz-container" style="display:none;">
+  <h1>Generative AI Challenge - Round 1</h1>
+  <p class="subtitle" id="progress">Image 1 of 5</p>
+  <div class="image-box">
+    <img id="quiz-image" src="" alt="AI Generated Image">
+  </div>
+  <div class="options" id="options"></div>
+</div>
+
+<div class="container" id="completion-screen" style="display:none;">
+  <h1>Round Completed!</h1>
+  <p>Thank you for participating in the Generative AI Challenge.</p>
+  <div class="success-message" id="success-message">
+    Your responses have been successfully recorded locally.
+  </div>
+  <div class="warning-message" id="data-warning">
+    <strong>Data Location:</strong> Your responses are stored in your browser's local storage.
+    <br><br>
+    <button class="start-btn" onclick="downloadData()" style="margin: 10px;">Download Responses</button>
+    <button class="start-btn" onclick="clearData()" style="background: #ff4757; margin: 10px;">Clear Local Data</button>
+  </div>
+  <button class="start-btn" id="restart-btn" style="margin-top: 20px;">Take Quiz Again</button>
+</div>
+
+<!-- Using Supabase CDN with proper version -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Supabase configuration
+  const SUPABASE_URL = "https://xswbktpykjdfdcjxnpni.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhzd2JrdHB5a2pkZmRjanhucG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NDU3NjksImV4cCI6MjA3ODUyMTc2OX0.FwyDdzv0ayoi2eK18u6NpXzaqZQNzo6R5OIQmV4R6Go";
+  
+  // Initialize Supabase client
+  let supabase;
+  let rlsEnabled = true; // RLS is enabled by default in Supabase
+  
+  try {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log("Supabase client initialized successfully");
+    
+    // Test connection and RLS status
+    testRLSAccess();
+  } catch (error) {
+    console.error("Error initializing Supabase:", error);
+    console.warn("Using localStorage as fallback");
+  }
+
+  // Quiz data with placeholder images
+  const quizData = [
+    { 
+      image: "./Image 1.png", 
+      options: [
+        "A short-haired orange tabby cat sitting in a flower garden, bright morning light, macro photography style, colorful bokeh background.",
+        "A fluffy grey cat sitting indoors near a window, sunlight shining on its fur, shallow depth of field, cozy warm tone, soft background blur.",
+        "A high-resolution close-up photograph of a fluffy grey long-haired cat sitting on a mossy forest floor, warm natural daylight, soft depth of field, detailed fur texture, calm expression, cinematic forest background, ultra-realistic photography."
+      ] 
+    },
+    { 
+      image: "./Image 2.png", 
+      options: [
+        "A 2D anime-style illustration of a young girl mage wearing a blue cloak, holding a magic staff, glowing particles around her, standing in a mystical forest, bright expressive eyes, fantasy adventure theme.",
+        "A 2D anime-style illustration of a young girl archer in a green cloak, holding a wooden bow with a quiver of arrows on her back, standing in a soft forest background, bright expressive eyes, clean line art, warm light, studio Ghibli inspired style.",
+        "A 2D anime-style illustration of a cheerful girl in a school uniform, standing in a city park, sunlight filtering through trees, bright expressive eyes, slice-of-life aesthetic."
+      ] 
+    },
+    { 
+      image: "./Image 3.png", 
+      options: [
+        "A semi-realistic digital painting of a fierce female warrior with flowing auburn hair, wearing weathered steel armor and a dark green cloak, holding a sword, standing against misty mountains, dramatic lighting, detailed brushwork, ArtStation fantasy style.",
+        "A semi-realistic digital painting of a determined female warrior with windswept chestnut hair, wearing worn metal armor and a forest-green cloak, holding a longsword, standing before foggy mountains, cinematic lighting, ArtStation fantasy artwork.",
+        "A semi-realistic digital painting of a strong female fighter with fiery red hair, dressed in aged steel armor and a dark hooded cloak, gripping a blade, standing in a cloudy highland landscape, moody lighting, detailed fantasy character concept art."
+      ] 
+    },
+    { 
+      image: "./Image 4.png", 
+      options: [
+        "A flat-style digital illustration of a thoughtful young woman with shoulder-length dark hair, wearing a burnt-orange shirt, touching her chin with one hand while a small question mark appears near her head, clean simple lines, light neutral background.",
+        "A flat-style digital illustration of a thoughtful young woman with short dark hair, wearing an orange shirt, touching her chin with one hand while a question mark floats near her head, clean simple lines, minimal pastel background.",
+        "A modern flat illustration of a young woman with short dark brown hair, wearing an orange top, hand resting near her cheek, with a large question mark beside her head, minimal line work, soft beige background."
+      ] 
+    },
+    { 
+      image: "./Image 5.png", 
+      options: [
+        "A flat vector illustration of a light blue cup with a tea bag string hanging down the side, subtle steam above, smooth lines, pastel cream background, modern minimalist style.",
+        "A simple flat digital illustration of a blue ceramic mug with a tea bag hanging from the rim, gentle steam rising above, clean vector lines, soft beige background, modern minimal design.",
+        "A minimal flat illustration of a dark blue coffee mug with a tea tag resting on the table beside it, faint steam rising, clean outlines, warm beige background, friendly modern aesthetic."
+      ] 
+    }
+  ];
+
+  let current = 0;
+  let userResponses = [];
+  let userName = "";
+  let userArid = "";
+  let quizCompleted = false;
+
+  const startBtn = document.getElementById("start-btn");
+  const startScreen = document.getElementById("start-screen");
+  const quizContainer = document.getElementById("quiz-container");
+  const completionScreen = document.getElementById("completion-screen");
+  const quizImage = document.getElementById("quiz-image");
+  const optionsContainer = document.getElementById("options");
+  const progress = document.getElementById("progress");
+  const loading = document.getElementById("loading");
+  const successMessage = document.getElementById("success-message");
+  const restartBtn = document.getElementById("restart-btn");
+  const securityWarning = document.getElementById("security-warning");
+  const dataWarning = document.getElementById("data-warning");
+
+  // Test RLS access
+  async function testRLSAccess() {
+    if (!supabase) return;
+    
+    try {
+      // Try a simple insert to test RLS
+      const testData = {
+        name: "test",
+        arid: "test",
+        image: "test",
+        selected_option: "test"
+      };
+      
+      const { error } = await supabase
+        .from('responses')
+        .insert([testData]);
+      
+      if (error && error.code === '42501') {
+        console.log("RLS is enabled - using localStorage fallback");
+        rlsEnabled = false;
+        securityWarning.style.display = 'block';
+      } else if (!error) {
+        console.log("RLS might be disabled - data inserted successfully");
+        rlsEnabled = true;
+        securityWarning.style.display = 'none';
+        
+        // Clean up test data if it was inserted
+        await supabase
+          .from('responses')
+          .delete()
+          .eq('name', 'test');
+      }
+    } catch (error) {
+      console.error("Error testing RLS:", error);
+      rlsEnabled = false;
+      securityWarning.style.display = 'block';
+    }
+  }
+
+  // Prevent page refresh/leaving during quiz
+  window.onbeforeunload = (e) => { 
+    if(!quizCompleted) {
+      e.preventDefault();
+      e.returnValue = "You cannot refresh or leave before completing the round!";
+      return "You cannot refresh or leave before completing the round!";
+    }
+  }
+
+  startBtn.addEventListener("click", () => {
+    userName = document.getElementById("name").value.trim();
+    userArid = document.getElementById("arid").value.trim();
+    
+    if(!userName || !userArid){ 
+      alert("Please enter both name and ARID number!"); 
+      return; 
+    }
+    
+    // Show loading state
+    loading.style.display = "block";
+    startBtn.disabled = true;
+    
+    // Small delay to show loading, then start quiz
+    setTimeout(() => {
+      startScreen.style.display = "none";
+      quizContainer.style.display = "block";
+      showImage();
+      loading.style.display = "none";
+    }, 1000);
+  });
+
+  restartBtn.addEventListener("click", () => {
+    // Reset everything
+    current = 0;
+    userResponses = [];
+    quizCompleted = false;
+    completionScreen.style.display = "none";
+    startScreen.style.display = "block";
+    document.getElementById("name").value = "";
+    document.getElementById("arid").value = "";
+    startBtn.disabled = false;
+    successMessage.style.display = "none";
+    dataWarning.style.display = "block";
+  });
+
+  function showImage(){
+    const item = quizData[current];
+    quizImage.src = item.image;
+    progress.textContent = `Image ${current+1} of ${quizData.length}`;
+    optionsContainer.innerHTML = "";
+    
+    item.options.forEach((opt, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.textContent = opt;
+      btn.onclick = () => selectOption(idx, btn);
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  async function selectOption(index, btn){
+    // Visual feedback
+    Array.from(optionsContainer.children).forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+    
+    // Store response - MATCHING YOUR DATABASE SCHEMA
+    userResponses.push({
+      name: userName,
+      arid: userArid,
+      image: `Image${current+1}`,
+      selected_option: `Option${index+1}`,
+      timestamp: new Date().toISOString(),
+      option_text: quizData[current].options[index] // Store locally only
+    });
+
+    // Small delay for visual feedback before moving to next question
+    setTimeout(async () => {
+      if(current < quizData.length-1){
+        current++;
+        showImage();
+      } else {
+        quizCompleted = true;
+        const saveSuccess = await saveResponses();
+        
+        // Show completion screen
+        quizContainer.style.display = "none";
+        completionScreen.style.display = "block";
+        
+        if(saveSuccess) {
+          successMessage.style.display = "block";
+        }
+      }
+    }, 500);
+  }
+
+  async function saveResponses(){
+    // Try to save to Supabase first (only if RLS allows)
+    if (supabase && rlsEnabled) {
+      try {
+        // Prepare data for Supabase (without extra fields)
+        const supabaseData = userResponses.map(response => ({
+          name: response.name,
+          arid: response.arid,
+          image: response.image,
+          selected_option: response.selected_option
+        }));
+        
+        const { data, error } = await supabase
+          .from('responses')
+          .insert(supabaseData);
+          
+        if(error){
+          console.error("Supabase insert error:", error);
+          if (error.code === '42501') {
+            rlsEnabled = false;
+            securityWarning.style.display = 'block';
+          }
+          // Fallback to localStorage
+          return saveToLocalStorage();
+        } else {
+          console.log("Responses saved to Supabase:", data);
+          // Also save to localStorage as backup
+          saveToLocalStorage();
+          return true;
+        }
+      } catch (error) {
+        console.error("Error saving to Supabase:", error);
+        return saveToLocalStorage();
+      }
+    } else {
+      // No Supabase or RLS blocked, use localStorage
+      return saveToLocalStorage();
+    }
+  }
+
+  function saveToLocalStorage() {
+    try {
+      // Get existing responses or create new array
+      const existingResponses = JSON.parse(localStorage.getItem('quizResponses') || '[]');
+      // Add new responses
+      const allResponses = [...existingResponses, ...userResponses];
+      // Save back to localStorage
+      localStorage.setItem('quizResponses', JSON.stringify(allResponses));
+      console.log("Responses saved to localStorage:", userResponses.length, "entries");
+      return true;
+    } catch (error) {
+      console.error("Error saving to localStorage:", error);
+      return false;
+    }
+  }
+
+  // Download data as JSON file
+  window.downloadData = function() {
+    try {
+      const data = localStorage.getItem('quizResponses');
+      if (!data) {
+        alert("No data found in local storage.");
+        return;
+      }
+      
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `quiz_responses_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading data:", error);
+      alert("Error downloading data.");
+    }
+  };
+
+  // Clear local data
+  window.clearData = function() {
+    if (confirm("Are you sure you want to clear all local quiz data?")) {
+      localStorage.removeItem('quizResponses');
+      alert("Local data cleared successfully.");
+      dataWarning.innerHTML = "<strong>Data Cleared:</strong> All local responses have been removed.";
+    }
+  };
+
+});
+</script>
+</body>
+</html>
